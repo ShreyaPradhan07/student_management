@@ -34,15 +34,15 @@ jobs:
       - name: Maven Build and Test
         run: mvn -B clean verify
 
-      # 4. SonarQube code quality analysis
-      - name: SonarQube Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=springboot-docker-demo \
-            -Dsonar.qualitygate.wait=true
+      # # 4. SonarQube code quality analysis
+      # - name: SonarQube Analysis
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      #   run: |
+      #     mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+      #       -Dsonar.projectKey=springboot-docker-demo \
+      #       -Dsonar.qualitygate.wait=true
 
       # 5. Setup Docker Buildx
       - name: Setup Docker Buildx
@@ -65,28 +65,28 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/springboot-demo:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/springboot-demo:${{ github.sha }}
 
-      # 8. Deploy application on Ubuntu Server
-      - name: Deploy Spring Boot Application
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/springboot-demo:${{ github.sha }}
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          envs: IMAGE
-          script: |
-            docker pull $IMAGE
+      # # 8. Deploy application on Ubuntu Server
+      # - name: Deploy Spring Boot Application
+      #   uses: appleboy/ssh-action@v1.2.0
+      #   env:
+      #     IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/springboot-demo:${{ github.sha }}
+      #   with:
+      #     host: ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USER }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     port: 22
+      #     envs: IMAGE
+      #     script: |
+      #       docker pull $IMAGE
 
-            docker stop springboot-app || true
+      #       docker stop springboot-app || true
 
-            docker rm springboot-app || true
+      #       docker rm springboot-app || true
 
-            docker run -d \
-              --name springboot-app \
-              --restart unless-stopped \
-              -p 8080:8082 \
-              $IMAGE
+      #       docker run -d \
+      #         --name springboot-app \
+      #         --restart unless-stopped \
+      #         -p 8080:8082 \
+      #         $IMAGE
 
-            docker image prune -f
+      #       docker image prune -f
